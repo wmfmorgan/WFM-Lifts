@@ -39,7 +39,7 @@ graph TD;
         B --> M[Dashboard: Today's Workout];
         B --> N[Actual Weight Inputs];
         B --> O[Complete Workout → Progression Logic];
-        B --> P[History Page (next)];
+        B --> P[History Page \(next\)];
 ```
 
 ## Tech Stack & Versions (as of Dec 2025)
