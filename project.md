@@ -40,6 +40,7 @@ graph TD;
         B --> N[Actual Weight Inputs];
         B --> O[Complete Workout → Progression Logic];
         B --> P[History Page next];
+    end;
 ```
 
 ## Tech Stack & Versions (as of Dec 2025)
