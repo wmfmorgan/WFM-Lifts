@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Today • {{ today }}{% endblock %}
+
+{% block content %}
+<header>
+    <h1>WFM LIFTS</h1>
+    <p class="subtitle">{{ today }} • Phase {{ phase }} • Workout {{ workout_type }}</p>
+</header>
+
+<main>
+    <!-- SET TODAY'S WEIGHTS — INSTANT CONTROL -->
+    <div class="weight-editor-card">
+        <h2 style="color:#ff0; text-align:center; margin-bottom:1rem;">SET TODAY'S WORKING WEIGHTS</h2>
+        <form id="weight-form">
+            {% for lift in lifts %}
+            <div class="weight-input-group">
+                <label for="weight-{{ loop.index }}">{{ lift.name }}</label>
+                <input 
+                    type="number" 
+                    step="5" 
+                    id="weight-{{ loop.index }}" 
+                    name="{{ lift.name|lower|replace(' ', '_') }}" 
+                    value="{{ lift.working_weight }}" 
+                    class="weight-input"
+                    data-original="{{ lift.working_weight }}"
+                >
+                <span>lb</span>
+            </div>
+            {% endfor %}
+            <div style="text-align:center; margin-top:1.5rem;">
+                <button type="submit" class="rest-btn" style="background:#0f0; color:#000;">
+                    APPLY WEIGHTS & RECALCULATE WARMUPS
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <hr style="border:2px solid #333; margin:2rem 0;">
+
+    {% for lift in lifts %}
+        <div class="lift-card">
+            <h2>{{ lift.name }}</h2>
+            <p class="working">Working: <strong>{{ lift.working_weight }} lb</strong></p>
+
+            <div class="sets">
+                {% for set in lift.warmups %}
+                    {% if set.is_work %}
+                        <div class="set work-set" data-lift="{{ lift.name }}">
+                            <div class="weight">{{ set.weight }} lb</div>
+                            <div class="actual-weight">
+                                <input type="number" step="5" value="{{ set.weight }}" class="actual-input" />
+                                lb
+                            </div>
+                            <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
+                            <button class="done-btn" onclick="this.classList.toggle('completed')">
+                                WORK SET
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="set warmup-set">
+                            <div class="weight">{{ set.weight }} lb</div>
+                            <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
+                            <div class="plates">{{ set.plates }}</div>
+                            <button class="done-btn" onclick="this.classList.toggle('completed')">Done</button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}    
+    
+</main>
+
+<div style="text-align: center; margin: 3rem 0;">
+    <button id="complete-btn" class="rest-btn" style="background:#0f0; color:#000; font-size:2rem; padding:1.5rem;">
+        WORKOUT COMPLETE — LOCK IN +5 lb
+    </button>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+<footer>
+    <a href="{{ url_for('routes.rest_day') }}" class="rest-btn">REST DAY</a>
+    <div style="margin-top: 1rem; text-align: center;">
+        <a href="{{ url_for('routes.settings') }}" style="color: #999; font-size: 0.9rem;">Settings</a>
+    </div>
+    <a href="{{ url_for('routes.logout') }}" style="color: #999; font-size: 0.8rem;">Logout</a>
+</footer>
+{% endblock %}

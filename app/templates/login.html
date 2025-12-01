@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 2rem auto; padding: 2rem;">
+    <h1 style="text-align: center; color: #ff0;">LOG IN</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div style="margin: 1rem 0;">
+            {{ form.username.label }}<br>
+            {{ form.username(size=32, style="width:100%; padding:1rem; font-size:1.2rem;") }}
+        </div>
+        <div style="margin: 1rem 0;">
+            {{ form.password.label }}<br>
+            {{ form.password(size=32, style="width:100%; padding:1rem; font-size:1.2rem;") }}
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            {{ form.submit(class="rest-btn", style="background:#0f0; color:#000; font-size:1.5rem; padding:1rem 2rem;") }}
+        </div>
+    </form>
+    <p style="text-align: center; margin-top: 1rem;">
+        <a href="{{ url_for('routes.register') }}">Need an account? Register</a>
+    </p>
+</div>
+{% endblock %}
