@@ -19,28 +19,27 @@ Built for lifters who respect the program.
 ## High-Level Architecture (Mermaid)
 
 ```mermaid
-graph TD
-    A[Browser / Mobile] -->|HTTPS| B[Flask App]
-    B --> C[PostgreSQL DB]
-    B --> D[Flask-Login]
-    B --> E[Flask-SQLAlchemy]
-    B --> F[Flask-Migrate]
-    B --> G[Jinja2 Templates]
-    B --> H[Static: CSS + JS]
+graph TD;
+    A[Browser / Mobile] -->|HTTPS| B[Flask App];
+    B --> C[PostgreSQL DB];
+    B --> D[Flask-Login];
+    B --> E[Flask-SQLAlchemy];
+    B --> F[Flask-Migrate];
+    B --> G[Jinja2 Templates];
+    B --> H[Static: CSS + JS];
 
-    subgraph Models
-        C --> I[User]
-        C --> J[StartingWeights]
-        C --> K[WorkoutLog]
-        C --> L[LiftEntry]
-    end
+    subgraph Models;
+        C --> I[User];
+        C --> J[StartingWeights];
+        C --> K[WorkoutLog];
+        C --> L[LiftEntry];
+    end;
 
-    subgraph Features
-        B --> M[Dashboard: Today's Workout]
-        B --> N[Actual Weight Inputs]
-        B --> O[Complete Workout → Progression Logic]
-        B --> P[History Page (next)]
-    end
+    subgraph Features;
+        B --> M[Dashboard: Today's Workout];
+        B --> N[Actual Weight Inputs];
+        B --> O[Complete Workout → Progression Logic];
+        B --> P[History Page (next)];
 ```
 
 ## Tech Stack & Versions (as of Dec 2025)
