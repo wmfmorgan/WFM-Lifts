@@ -7,6 +7,27 @@ header { text-align: center; margin-bottom: 2rem; }
 h1 { font-size: 3rem; color: #ff0; text-shadow: 0 0 10px #ff0; }
 .subtitle { font-size: 1.2rem; opacity: 0.8; }
 
+/* FORCE CENTER THE ENTIRE HISTORY PAGE CONTENT */
+.history-page main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+}
+
+.history-page .history-table {
+    width: 100%;
+    max-width: 620px;        /* Perfect mobile-to-tablet size */
+    margin: 2rem 0;          /* Vertical spacing only — flex handles horizontal centering */
+    border-collapse: collapse;
+    background: #222;
+    border: 3px solid #444;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
 .lift-card { background: #222; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 3px solid #333; }
 h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
 .working { font-size: 1.4rem; margin-bottom: 1rem; color: #0f0; }
@@ -103,4 +124,99 @@ h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
     outline: none;
     border-color: #ff0;
     box-shadow: 0 0 15px #0f0;
+}
+
+/* HISTORY PAGE — TRUTH TABLE STYLING */
+.history-table {
+    width: 100%;
+    max-width: 600px;     /* Keeps it tight and centered */
+    margin: 2rem auto;    /* ← THIS CENTERS THE TABLE UNDER "HISTORY", BROTHER! */
+    border-collapse: collapse;
+    background: #222;
+    font-size: 1rem;
+    border: 3px solid #444;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.history-table th {
+    background: #000;
+    color: #ff0;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 1rem;
+    border-bottom: 3px solid #444;
+}
+
+.history-table td {
+    padding: 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid #444;
+}
+
+.history-table tr.success-row {
+    background: #020;     /* Dark green for success */
+}
+
+.history-table tr.failed-row {
+    background: #400;     /* Blood red for failure */
+}
+
+.history-table tr.rest-row {
+    background: #111;
+    color: #999;
+    font-style: italic;
+}
+
+.history-table .phase-cell {
+    font-weight: bold;
+    color: #ff0;
+}
+
+.history-table .actual-cell {
+    color: #0ff;
+    font-weight: bold;
+}
+
+.history-table .completed-cell.success {
+    color: #0f0;
+    font-weight: bold;
+}
+
+.history-table .completed-cell.failed {
+    color: #f00;
+    font-weight: bold;
+}
+
+/* WHEN YOU CHOKED — ACTUAL < PLANNED = RED TEXT OF SHAME */
+.actual-cell.choked {
+    color: #ff0000 !important;
+    font-weight: bold;
+    text-shadow: 0 0 10px #f00;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* WORKOUT TYPE ROW COLORS — A DAYS vs B DAYS vs C DAYS */
+tr.workout-a-row {
+    background: #001a1a !important;   /* Deep teal for A days */
+}
+
+tr.workout-b-row {
+    background: #1a001a !important;   /* Deep purple for B days */
+}
+
+tr.workout-c-row {
+    background: #1a1a00 !important;   /* Dark gold for C days (Phase 3) */
+}
+
+tr.rest-row {
+    background: #111 !important;
+    color: #999;
+    font-style: italic;
 }

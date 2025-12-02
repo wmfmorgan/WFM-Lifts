@@ -1,1 +1,74 @@
-<!-- \app\templates\history.html -->
+{% extends "base.html" %}
+{% block title %}History • The Truth{% endblock %}
+
+{% block content %}
+<div class="history-page">
+    <header>
+        <h1>HISTORY</h1>
+        <p class="subtitle">The Truth. No Excuses. Only Results.</p>
+    </header>
+
+    <main>
+        {% if workouts %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Phase</th>
+                        <th>Lift</th>
+                        <th>Planned</th>
+                        <th>Actual</th>
+                        <th>Done</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for workout in workouts %}
+                        {% if workout.is_rest_day %}
+                            <tr class="rest-row">
+                                <td colspan="6">
+                                    🛌 {{ workout.date.strftime("%A, %B %d, %Y") }} — REST DAY — Recovery Is King
+                                </td>
+                            </tr>
+                        {% else %}
+                            {% set row_class = {
+                                'A': 'workout-a-row',
+                                'B': 'workout-b-row',
+                                'C': 'workout-c-row'
+                            }[workout.workout_type] %}
+
+                            {% for lift in workout.lifts %}
+                                <tr class="{{ row_class }}">
+                                    <td>{{ workout.date.strftime("%m/%d") }}</td>
+                                    <td class="phase-cell">{{ workout.phase }} {{ workout.workout_type }}</td>
+                                    <td><strong>{{ lift.exercise }}</strong></td>
+                                    <td>{{ lift.working_weight }}</td>
+                                    <td class="actual-cell {% if lift.actual_weight is not none and lift.actual_weight < lift.working_weight %}choked{% endif %}">
+                                        {{ lift.actual_weight|default('—') }}
+                                    </td>
+                                    <td class="completed-cell {% if lift.failed %}failed{% else %}success{% endif %}">
+                                        {{ lift.work_sets_completed }}/{{ lift.work_sets_required }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </tbody>            
+            </table>
+        {% else %}
+            <div class="lift-card" style="text-align: center; padding: 4rem; max-width: 500px; margin: 2rem auto;">
+                <h2 style="color: #f00;">NO HISTORY YET</h2>
+                <p>Get your ass in the gym and start earning it, brother!</p>
+                <a href="{{ url_for('routes.dashboard') }}" class="rest-btn" style="background: #0f0; color: #000; margin-top: 2rem;">
+                    GO LOG TODAY →
+                </a>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer style="margin-top: 3rem; text-align: center;">
+        <a href="{{ url_for('routes.dashboard') }}" class="rest-btn" style="background: #0f0; color: #000;">
+            ← BACK TO DASHBOARD
+        </a>
+    </footer>
+</div>
+{% endblock %}

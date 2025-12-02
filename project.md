@@ -177,8 +177,8 @@ WFM-Lifts/
 | Login/Register                | Done     | Secure, hashed                     |
 | Actual weight logging         | Done     | Per work set                       |
 | True progression              | Done     | Only success earns +5 lb           |
-| History Page                  | Next     | Every rep, every failure           |
-| Rest Day logging              | Next     |                                    |
+| History Page                  | Done     | Every rep, every failure           |
+| Rest Day logging              | Done     |                                    |
 | Settings page                 | Next     | Phase, plates, deload              |
 | PWA / Add to Home Screen      | Later    |                                    |
 | Export data (CSV)             | Later    |                                    |

@@ -148,13 +148,42 @@ def logout():
     flash('Logged out — rest up, champ!', 'info')
     return redirect(url_for('routes.index'))
 
+@bp.route('/history')
+@login_required
+def history():
+    workouts = WorkoutLog.query.filter_by(user_id=current_user.id)\
+        .order_by(WorkoutLog.date.desc())\
+        .limit(50).all()  # Last 50 sessions — plenty for now
+    return render_template('history.html', workouts=workouts)
+
 @bp.route('/settings')
 def settings():
     return "<h1 style='color: #ff0; text-align: center; padding: 4rem;'>Settings Page Coming Soon — Hulkamania Style!</h1>"
 
 @bp.route('/rest-day')
+@login_required
 def rest_day():
-    return "<h1 style='color: #f00; text-align: center; padding: 4rem; font-size: 3rem;'>REST DAY LOGGED — RECOVERY IS KING, BROTHER!</h1>"
+    today = date.today()
+    
+    # Check if user already logged today (workout or rest)
+    # existing = WorkoutLog.query.filter_by(user_id=current_user.id, date=today).first()
+    # if existing:
+    #     flash("You already logged today — no double-dipping, brother!", "warning")
+    #     return redirect(url_for('routes.dashboard'))
+
+    # Log the rest day
+    rest_log = WorkoutLog(
+        user_id=current_user.id,
+        date=today,
+        phase=current_user.current_phase,
+        workout_type="R",
+        is_rest_day=True
+    )
+    db.session.add(rest_log)
+    db.session.commit()
+
+    flash("REST DAY LOGGED — RECOVERY IS KING, BROTHER!", "success")
+    return redirect(url_for('routes.dashboard'))
 
 @bp.route('/complete-workout', methods=['POST'])
 @login_required
