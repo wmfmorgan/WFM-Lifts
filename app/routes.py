@@ -82,7 +82,7 @@ def dashboard():
         working_weight = weight_map.get(lift) or weight_map.get(key) or 45
         if working_weight <= 0:
             working_weight = 45  # never allow 0
-        sets = calculate_warmups(working_weight, lift)
+        sets = calculate_warmups(working_weight, lift, current_user.id)
         print(f"DEBUG → Lift: '{lift}' → Key tried: '{key}' → Weight: {working_weight}")
         workout_data.append({
             "name": lift,
@@ -157,8 +157,40 @@ def history():
     return render_template('history.html', workouts=workouts)
 
 @bp.route('/settings')
+@login_required
 def settings():
-    return "<h1 style='color: #ff0; text-align: center; padding: 4rem;'>Settings Page Coming Soon — Hulkamania Style!</h1>"
+    # Get user's current plates (as list of floats)
+    user_plates = [p.weight for p in current_user.plates]
+    return render_template(
+        'settings.html',
+        current_phase=current_user.current_phase,
+        user_plates=user_plates
+    )
+
+@bp.route('/save-settings', methods=['POST'])
+@login_required
+def save_settings():
+    # Update phase
+    phase = int(request.form.get('phase', 1))
+    if phase not in [1, 2, 3]:
+        phase = 1
+    current_user.current_phase = phase
+
+    # Update plates — delete old, insert new
+    Plate.query.filter_by(user_id=current_user.id).delete()
+
+    plate_values = request.form.getlist('plates')  # list of strings
+    for weight_str in plate_values:
+        try:
+            weight = float(weight_str)
+            plate = Plate(user_id=current_user.id, weight=weight, pair_count=1)
+            db.session.add(plate)
+        except ValueError:
+            pass  # skip garbage
+
+    db.session.commit()
+    flash("Settings locked in — your gym, your rules!", "success")
+    return redirect(url_for('routes.dashboard'))
 
 @bp.route('/rest-day')
 @login_required
@@ -257,21 +289,39 @@ def complete_workout():
 @login_required
 def update_working_weights():
     data = request.get_json()
+
+    if not data:
+        return jsonify(success=False, message="No data received")
+
+    # RE-LOAD the weights object fresh from DB to avoid stale data
     weights = StartingWeights.query.filter_by(user_id=current_user.id).first()
     if not weights:
-        return jsonify(success=False, message="No weights found")
+        return jsonify(success=False, message="No starting weights found")
 
-    for lift, weight in data.items():
-        if lift == "Squat":
-            weights.squat = weight
-        elif lift in ["Bench Press", "BenchPress"]:
-            weights.bench = weight
-        elif lift == "Press":
-            weights.press = weight
-        elif lift == "Deadlift":
-            weights.deadlift = weight
-        elif lift in ["Power Clean", "PowerClean"]:
-            weights.powerclean = weight
+    db.session.expire(weights)   # ← THIS IS THE NUCLEAR BUTTON
 
-    db.session.commit()
-    return jsonify(success=True)
+    # Map lift names to DB fields
+    field_map = {
+        "Squat": "squat",
+        "Bench Press": "bench",
+        "Press": "press",
+        "Deadlift": "deadlift",
+        "Power Clean": "powerclean",
+        "PowerClean": "powerclean"
+    }
+
+    updated = False
+    for lift_name, new_weight in data.items():
+        field = field_map.get(lift_name.replace(" ", ""))
+        if field and hasattr(weights, field):
+            old_val = getattr(weights, field)
+            new_val = float(new_weight)
+            if old_val != new_val:
+                setattr(weights, field, new_val)
+                updated = True
+
+    if updated:
+        db.session.commit()
+        return jsonify(success=True, message="Weights updated — warmups recalculated!")
+    else:
+        return jsonify(success=True, message="No changes detected")

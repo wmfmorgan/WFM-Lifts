@@ -43,30 +43,46 @@
             <h2>{{ lift.name }}</h2>
             <p class="working">Working: <strong>{{ lift.working_weight }} lb</strong></p>
 
-            <div class="sets">
-                {% for set in lift.warmups %}
-                    {% if set.is_work %}
-                        <div class="set work-set" data-lift="{{ lift.name }}">
-                            <div class="weight">{{ set.weight }} lb</div>
-                            <div class="actual-weight">
-                                <input type="number" step="5" value="{{ set.weight }}" class="actual-input" />
-                                lb
-                            </div>
-                            <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
-                            <button class="done-btn" onclick="this.classList.toggle('completed')">
-                                WORK SET
-                            </button>
-                        </div>
-                    {% else %}
-                        <div class="set warmup-set">
-                            <div class="weight">{{ set.weight }} lb</div>
-                            <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
-                            <div class="plates">{{ set.plates }}</div>
-                            <button class="done-btn" onclick="this.classList.toggle('completed')">Done</button>
-                        </div>
-                    {% endif %}
-                {% endfor %}
+<div class="sets">
+    {% for set in lift.warmups %}
+        {% if set.is_work %}
+            <div class="set work-set" data-lift="{{ lift.name }}">
+                <!-- Working Weight — Big and Bold -->
+                <div class="weight main-weight">
+                    {{ set.weight }} lb
+                </div>
+                <!-- Reps & Plates -->
+                <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
+                <div class="plates">{{ set.plates }}</div>
+
+                <!-- Button -->
+                <button class="done-btn" onclick="this.classList.toggle('completed')">
+                    WORK SET
+                </button>
+                <!-- Actual Weight Input — On Its Own Line, Underneath -->
+                <div class="actual-weight-line">
+                    <input type="number" 
+                           step="5" 
+                           value="{{ set.weight }}" 
+                           class="actual-input" 
+                           placeholder="{{ set.weight }}" />
+                </div>
+
+
             </div>
+        {% else %}
+            <!-- Warmup Sets — Clean and Simple -->
+            <div class="set warmup-set">
+                <div class="weight">{{ set.weight }} lb</div>
+                <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
+                <div class="plates">{{ set.plates }}</div>
+                <button class="done-btn" onclick="this.classList.toggle('completed')">
+                    Done
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
         </div>
     {% endfor %}    
 

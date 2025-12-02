@@ -1,1 +1,45 @@
 <!-- \app\templates\settings.html -->
+
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header>
+        <h1>SETTINGS</h1>
+        <p class="subtitle">Your gym. Your plates. Your phase.</p>
+    </header>
+
+    <form method="POST" action="{{ url_for('routes.save_settings') }}">
+        <div class="lift-card">
+            <h2 style="color:#ff0;">CURRENT PHASE</h2>
+            <select name="phase" class="weight-input" style="width:100%; padding:1rem; font-size:1.2rem;">
+                <option value="1" {% if current_phase == 1 %}selected{% endif %}>Phase 1 — Deadlift 1×5</option>
+                <option value="2" {% if current_phase == 2 %}selected{% endif %}>Phase 2 — Power Clean</option>
+                <option value="3" {% if current_phase == 3 %}selected{% endif %}>Phase 3 — A/B/C Cycle</option>
+            </select>
+        </div>
+
+        <div class="lift-card">
+            <h2 style="color:#ff0;">AVAILABLE PLATES (pairs)</h2>
+            {% for weight in [45, 35, 25, 20, 15, 10, 5, 2.5, 1.25] %}
+            <label style="display:block; padding:0.8rem; background:#222; margin:0.4rem 0; border-radius:8px;">
+                <input type="checkbox" name="plates" value="{{ weight }}"
+                       {% if weight in user_plates %}checked{% endif %}>
+                <strong>{{ weight }} lb</strong>
+            </label>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="rest-btn" style="background:#0f0; color:#000; width:100%; padding:1.8rem; font-size:1.5rem; margin-top:2rem;">
+            SAVE SETTINGS — LOCK IT IN
+        </button>
+    </form>
+
+    <footer style="margin-top:3rem; text-align:center;">
+        <a href="{{ url_for('routes.dashboard') }}" class="rest-btn" style="background:#333;">
+            ← BACK TO DASHBOARD
+        </a>
+    </footer>
+</div>
+{% endblock %}

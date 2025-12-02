@@ -4,6 +4,7 @@
 
 from typing import List, Dict
 from flask import current_app
+from app.models import Plate
 
 # Standard Olympic bar
 BAR_WEIGHT = 45.0
@@ -11,16 +12,16 @@ BAR_WEIGHT = 45.0
 # Default plates — user can override in settings later
 DEFAULT_PLATES = [45, 35, 25, 10, 5, 2.5]
 
-def get_available_plates() -> List[float]:
-    """Get plates from user settings or fall back to defaults"""
-    # Later we'll pull from DB — for now, use defaults
-    return DEFAULT_PLATES.copy()
+def get_available_plates(user_id=None):
+    if user_id:
+        plates = Plate.query.filter_by(user_id=user_id).all()
+        if plates:
+            return sorted([p.weight for p in plates], reverse=True)
+    return DEFAULT_PLATES.copy()  # only if you somehow have zero plates
 
-def calculate_warmups(working_weight: float, exercise: str = "") -> List[Dict]:
-    """
-    Returns full warmup + work sets with perfect plate calculations
-    Starting Strength style — 4 jumps from bar to working weight
-    """
+def calculate_warmups(working_weight: float, exercise: str = "", user_id=None) -> List[Dict]:
+    plates = get_available_plates(user_id)
+    
     if working_weight <= BAR_WEIGHT:
         return [{
             "weight": BAR_WEIGHT,
@@ -31,22 +32,21 @@ def calculate_warmups(working_weight: float, exercise: str = "") -> List[Dict]:
             "is_work": False
         }]
 
-    plates = get_available_plates()
     diff = working_weight - BAR_WEIGHT
-    jump = round(diff / 4, 1)  # Clean rounding
+    # Use Starting Strength actual logic: round jump to nearest 5 lb
+    jump = round((working_weight - BAR_WEIGHT) / 4 / 5) * 5
+    if jump < 10:
+        jump = 10                           # Never jump less than 10 lb
 
     warmups = [
         {"weight": BAR_WEIGHT, "reps": 5, "sets": 2, "type": "warmup", "is_work": False},
-        {"weight": BAR_WEIGHT + jump, "reps": 5, "sets": 1, "type": "warmup", "is_work": False},
-        {"weight": BAR_WEIGHT + 2*jump, "reps": 3, "sets": 1, "type": "warmup", "is_work": False},
-        {"weight": BAR_WEIGHT + 3*jump, "reps": 2, "sets": 1, "type": "warmup", "is_work": False},
+        {"weight": round(BAR_WEIGHT + jump, 1), "reps": 5, "sets": 1, "type": "warmup", "is_work": False},
+        {"weight": round(BAR_WEIGHT + 2*jump, 1), "reps": 3, "sets": 1, "type": "warmup", "is_work": False},
+        {"weight": round(BAR_WEIGHT + 3*jump, 1), "reps": 2, "sets": 1, "type": "warmup", "is_work": False},
     ]
 
-    # Final work set
-    work_sets = 3
-    if exercise.lower() in ["deadlift", "power clean", "powerclean"]:
-        work_sets = 1
-
+    # Work sets
+    work_sets = 1 if exercise.lower() in ["deadlift", "power clean", "powerclean"] else 3
     warmups.append({
         "weight": working_weight,
         "reps": 5,
@@ -55,44 +55,49 @@ def calculate_warmups(working_weight: float, exercise: str = "") -> List[Dict]:
         "is_work": True
     })
 
-    # Fix last warmup so it lands perfectly
-    if len(warmups) > 1:
-        warmups[-2]["weight"] = round(working_weight - jump, 1)
-
     # Calculate plates for every set
     for s in warmups:
         s["plates"] = calculate_plates(s["weight"], plates)
 
     return warmups
 
-
 def calculate_plates(target_weight: float, available_plates: List[float] = None) -> str:
-    """Returns perfect plate string: bar + 2×45 + 1×25 + 1×10"""
     if available_plates is None:
         available_plates = get_available_plates()
 
     if abs(target_weight - BAR_WEIGHT) < 0.1:
         return "Empty Barbell"
 
-    to_load_per_side = (target_weight - BAR_WEIGHT) / 2
-    remaining = round(to_load_per_side, 5)
-    used = []
+    per_side = (target_weight - BAR_WEIGHT) / 2
+    per_side = round(per_side, 1)
+    
+    if per_side <= 0:
+        return "Empty Barbell"
 
-    for plate in sorted(available_plates, reverse=True):
-        if remaining <= 0:
-            break
-        count = int(remaining // plate)
+    # Sort descending
+    plates = sorted(available_plates, reverse=True)
+
+    used = {}
+
+    for plate in plates:
+        count = int(per_side // plate)
         if count > 0:
-            used.append(f"{count}×{plate}" if count > 1 else f"{plate}")
-            remaining -= count * plate
-            remaining = round(remaining, 5)
+            used[plate] = count + 1
+            per_side -= count * plate
+            per_side = round(per_side, 1)
 
-    if remaining > 0.1:
-        used.append(f"+ {remaining * 2:.1f} (micro)")
+    # Build string — always show pairs
+    parts = []
+    
+    for plate in sorted(used.keys(), reverse=True):
+        count = used[plate]
+        if count == 1:
+            parts.append(f"{plate}")
+        else:
+            parts.append(f"2×{plate}")
 
-    plates_str = " + ".join(used)
-    return f"bar + {plates_str}" if plates_str else "Empty Barbell"
-
+    result = "\n".join(parts)
+    return f"bar \n {result}" if result else "Empty Barbell"
 
 # TEST IT LIKE A BOSS
 if __name__ == "__main__":
