@@ -179,8 +179,9 @@ WFM-Lifts/
 | True progression              | Done     | Only success earns +5 lb           |
 | History Page                  | Done     | Every rep, every failure           |
 | Rest Day logging              | Done     |                                    |
-| Settings page                 | Next     | Phase, plates, deload              |
+| Settings page                 | Done     | Phase, plates                      |
 | PWA / Add to Home Screen      | Later    |                                    |
+| Settings page                 | Done     | Deload, K vs Lbs, Completion Sound |
 | Export data (CSV)             | Later    |                                    |
 | Deploy to Render.com          | Final    | Public URL                         |
 
