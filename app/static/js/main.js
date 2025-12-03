@@ -80,22 +80,20 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // WORKOUT COMPLETE BUTTON — LOCK IN +5 lb GAINS
+// WORKOUT COMPLETE BUTTON — NOW WITH OFFLINE SUPERPOWERS
 document.getElementById('complete-btn')?.addEventListener('click', function () {
     const liftData = {};
-
     document.querySelectorAll('.lift-card').forEach(card => {
         const name = card.querySelector('h2').textContent.trim();
         const workSets = card.querySelectorAll('.work-set');
         const completed = card.querySelectorAll('.work-set .done-btn.completed').length;
         const required = workSets.length;
-
         const actualWeights = [];
         workSets.forEach(set => {
             const input = set.querySelector('.actual-input');
             const weight = parseFloat(input.value) || 0;
-            actualWeights.push(weight);  // Save every set's actual weight
+            actualWeights.push(weight);
         });
-
         liftData[name] = {
             completed_sets: completed,
             required_sets: required,
@@ -103,19 +101,42 @@ document.getElementById('complete-btn')?.addEventListener('click', function () {
         };
     });
 
+    const payload = {
+        lift_details: liftData,
+        workout_type: document.querySelector('.subtitle').textContent.split(' • ')[2].split(' ')[1]
+    };
+
+    // OFFLINE FIRST — TRUTH ALWAYS WINS
+    if (navigator.onLine) {
+        sendWorkoutToServer(payload);
+    } else {
+        saveWorkoutOffline(payload);
+        alert("NO SIGNAL — WORKOUT SAVED OFFLINE.\nWill sync when you're back online, brother.");
+        location.reload();
+    }
+});
+
+// SEND TO SERVER (WHEN ONLINE)
+function sendWorkoutToServer(payload) {
     fetch('/complete-workout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            lift_details: liftData,
-            workout_type: document.querySelector('.subtitle').textContent.split(' • ')[2].split(' ')[1]
-        })
+        body: JSON.stringify(payload)
     })
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert("REAL GAINS LOGGED — NEXT WORKOUT USES WHAT YOU ACTUALLY DID");
+            alert("REAL GAINS LOGGED — SYNCED TO SERVER!");
             location.reload();
+        } else {
+            alert("Sync failed — saving offline...");
+            saveWorkoutOffline(payload);
         }
+    })
+    .catch(err => {
+        console.log("Network error — going offline", err);
+        saveWorkoutOffline(payload);
+        alert("OFFLINE — workout saved locally. Will sync later.");
+        location.reload();
     });
-});
+}
