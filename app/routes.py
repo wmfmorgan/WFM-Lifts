@@ -10,6 +10,8 @@ from app.forms import RegistrationForm, LoginForm
 from app.models import User, StartingWeights, LiftEntry, WorkoutLog, Plate
 from app import db
 from flask import jsonify
+from flask import session
+from datetime import timedelta
 
 bp = Blueprint('routes', __name__)
 
@@ -135,6 +137,7 @@ def login():
         user = User.query.filter_by(username=form.username.data.lower()).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=True)
+            session.permanent = True
             flash('LOGGED IN — TIME TO LIFT!', 'success')
             return redirect(url_for('routes.dashboard'))
         else: 
