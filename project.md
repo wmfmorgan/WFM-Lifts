@@ -181,7 +181,7 @@ WFM-Lifts/
 | Rest Day logging              | Done     |                                    |
 | Settings page                 | Done     | Phase, plates                      |
 | PWA / Add to Home Screen      | Later    |                                    |
-| Settings page                 | Done     | Deload, K vs Lbs, Completion Sound |
+| Settings page                 | Later    | Deload, K vs Lbs, Completion Sound |
 | Export data (CSV)             | Later    |                                    |
 | Deploy to Render.com          | Final    | Public URL                         |
 
