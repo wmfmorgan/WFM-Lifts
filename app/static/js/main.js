@@ -101,9 +101,16 @@ document.getElementById('complete-btn')?.addEventListener('click', function () {
         };
     });
 
+    const phaseLine = Array.from(document.querySelectorAll('.subtitle'))
+    .find(el => el.textContent.includes('Phase'));
+
+    const workout_type = phaseLine 
+    ? phaseLine.textContent.split(' • ')[1]?.split(' ')[1] 
+    : 'A';
+
     const payload = {
         lift_details: liftData,
-        workout_type: document.querySelector('.subtitle').textContent.split(' • ')[2].split(' ')[1]
+        workout_type: workout_type
     };
 
     // OFFLINE FIRST — TRUTH ALWAYS WINS
