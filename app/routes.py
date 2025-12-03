@@ -44,7 +44,7 @@ def dashboard():
     ).order_by(WorkoutLog.date.desc()).limit(10).all()
     
     last_workout = recent_workouts[0] if recent_workouts else None
-    
+
     if not last_workout:
         workout_type = "A"
     else:
@@ -85,7 +85,7 @@ def dashboard():
         if working_weight <= 0:
             working_weight = 45  # never allow 0
         sets = calculate_warmups(working_weight, lift, current_user.id)
-        print(f"DEBUG → Lift: '{lift}' → Key tried: '{key}' → Weight: {working_weight}")
+
         workout_data.append({
             "name": lift,
             "working_weight": working_weight,
@@ -292,7 +292,7 @@ def complete_workout():
 @login_required
 def update_working_weights():
     data = request.get_json()
-    print("WEIGHT UPDATE PAYLOAD:", data)
+
     if not data:
         return jsonify(success=False, message="No data received")
 
@@ -317,7 +317,7 @@ def update_working_weights():
 
     updated = False
     for lift_name, new_weight in data.items():
-        print(f"Processing: {lift_name} = {new_weight}")
+
         key = lift_name.lower().replace(" ", "")
         field = field_map.get(key)
         if field and hasattr(weights, field):
@@ -325,7 +325,6 @@ def update_working_weights():
             try:
                 new_val = float(new_weight)
                 if abs(old_val - new_val) > 0.1:  # avoid float precision issues
-                    print(f"Updating {field}: {old_val} → {new_val}")
                     setattr(weights, field, new_val)
                     updated = True
             except (ValueError, TypeError):
@@ -334,8 +333,5 @@ def update_working_weights():
 
     if updated:
         db.session.commit()
-        print("DB COMMITTED — WEIGHTS UPDATED")
-    else:
-        print("No changes to commit")
     
     return jsonify(success=True)

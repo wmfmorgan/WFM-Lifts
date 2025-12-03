@@ -98,13 +98,3 @@ def calculate_plates(target_weight: float, available_plates: List[float] = None)
 
     result = "\n".join(parts)
     return f"bar \n {result}" if result else "Empty Barbell"
-
-# TEST IT LIKE A BOSS
-if __name__ == "__main__":
-    print("SQUAT 315")
-    for s in calculate_warmups(315, "squat"):
-        print(f"{s['weight']} × {s['reps']} × {s['sets']} → {s['plates']}")
-    
-    print("\nDEADLIFT 405")
-    for s in calculate_warmups(405, "deadlift"):
-        print(f"{s['weight']} × {s['reps']} × {s['sets']} → {s['plates']}")
