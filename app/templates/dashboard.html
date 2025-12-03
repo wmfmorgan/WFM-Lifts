@@ -62,11 +62,14 @@
                 </button>
                 <!-- Actual Weight Input — On Its Own Line, Underneath -->
                 <div class="actual-weight-line">
-                    <input type="number" 
-                           step="5" 
-                           value="{{ set.weight }}" 
-                           class="actual-input" 
-                           placeholder="{{ set.weight }}" />
+                    <input type="text"
+                        inputmode="decimal"
+                        pattern="[0-9]*\.?[0-9]*"
+                        step="5"
+                        value="{{ set.weight }}"
+                        class="actual-input"
+                        placeholder="{{ set.weight }}"
+                        style="text-align: center; font-size: 1.6rem;" />
                 </div>
 
 
