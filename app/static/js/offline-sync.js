@@ -38,38 +38,80 @@ window.saveWorkoutOffline = function(workoutData) {
   };
 };
 
-// Sync when back online
+
 function syncPending() {
   if (!db || !navigator.onLine) return;
 
   const tx = db.transaction(STORE_NAME, 'readonly');
   const store = tx.objectStore(STORE_NAME);
-  const getAllRequest = store.getAll();
+  
+  const itemsRequest = store.getAll();
+  const keysRequest = store.getAllKeys();
 
-  getAllRequest.onsuccess = () => {
-    const pending = getAllRequest.result;
-    if (pending.length === 0) return;
+  // Wait for BOTH requests
+  let items, keys;
+  let completed = 0;
 
+  const checkDone = () => {
+    if (++completed === 2 && items && keys) {
+      processNext(items, keys);
+    }
+  };
+
+  itemsRequest.onsuccess = () => {
+    items = itemsRequest.result;
+    checkDone();
+  };
+
+  keysRequest.onsuccess = () => {
+    keys = keysRequest.result;
+    checkDone();
+  };
+
+  function processNext(items, keys) {
+    if (items.length === 0) return;
+
+    const item = items[0];
+    const key = keys[0];
+
+    if (item.type === 'weight-update') {
+      fetch('/update-working-weights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item.updates)
+      })
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(data => {
+        if (data.success) deleteAndContinue(key);
+      })
+      .catch(err => console.log("Weight sync failed (retry):", err));
+      return;
+    }
+
+    // workout log
     fetch('/complete-workout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pending[0])
+      body: JSON.stringify(item)
     })
-    .then(r => r.json())
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(data => {
-      if (data.success) {
-        const deleteTx = db.transaction(STORE_NAME, 'readwrite');
-        deleteTx.objectStore(STORE_NAME).delete(getAllRequest.resultKeys?.[0] || pending[0].id || 1);
-        hideOfflineBanner();
-        syncPending(); // next
-      }
+      if (data.success) deleteAndContinue(key);
     })
-    .catch(() => console.log("Still offline"));
-  };
+    .catch(err => console.log("Workout sync failed (retry):", err));
+  }
+
+  function deleteAndContinue(key) {
+    const deleteTx = db.transaction(STORE_NAME, 'readwrite');
+    deleteTx.objectStore(STORE_NAME).delete(key);
+    deleteTx.oncomplete = () => {
+      hideOfflineBanner();
+      syncPending();
+    };
+  }
 }
 
 window.addEventListener('online', syncPending);
-
 // Banner
 function showOfflineBanner() {
   if (document.getElementById('offline-banner')) return;

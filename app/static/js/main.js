@@ -12,6 +12,50 @@ document.addEventListener('DOMContentLoaded', function () {
             updates[liftName] = parseFloat(input.value) || 45;
         });
 
+        if (navigator.onLine) {
+            sendWeightsToServer(updates);
+        } else {
+            // Save offline — will sync on reconnect
+            saveWorkoutOffline({ type: 'weight-update', updates });
+            showOfflineBanner();  // reuse the banner function
+            alert("OFFLINE — Weights saved locally. Will sync when online.");
+            // location.reload();
+            Object.keys(updates).forEach(liftName => {
+            const card = Array.from(document.querySelectorAll('.lift-card'))
+                .find(c => {
+                                const headerText = c.querySelector('h2')?.textContent || '';
+                                return headerText.trim().replace(/\s+/g, ' ') === liftName;
+                            });
+            if (card) {
+                    const newWeight = updates[liftName];
+                    const workingWeightEl = card.querySelector('.working-weight');
+                    if (workingWeightEl) workingWeightEl.textContent = `${newWeight} lb`;
+                    console.log('generating new lifts');
+                    // Re-generate warmups
+                    const warmups = generateWarmups(newWeight, liftName);
+                    const setsContainer = card.querySelector('.sets');
+                    if (setsContainer) {
+                        setsContainer.innerHTML = ''; // clear old
+                        warmups.forEach(set => {
+                            const setEl = document.createElement('div');
+                            setEl.className = `set ${set.is_work ? 'work-set' : 'warmup-set'}`;
+                            setEl.innerHTML = `
+                                <div class="weight">${set.weight} lb</div>
+                                <div class="reps-sets">${set.reps} × ${set.sets}</div>
+                                <div class="plates">${set.plates}</div>
+                                ${set.is_work ? '<button class="done-btn">WORK SET</button>' : '<button class="done-btn">Done</button>'}
+                            `;
+                            setsContainer.appendChild(setEl);
+                        });
+                    }
+                }
+            });
+
+
+        }
+    });
+
+    function sendWeightsToServer(updates) {
         fetch('/update-working-weights', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -21,11 +65,17 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success) {
                 alert('WORKING WEIGHTS UPDATED — LOCKED IN!');
-                location.reload();  // refresh to show new warmups from server
+                location.reload();
             }
+        })
+        .catch(err => {
+            console.log("Weight update failed — saving offline", err);
+            saveWorkoutOffline({ type: 'weight-update', updates });
+            showOfflineBanner();  // reuse the banner function
+            alert("OFFLINE — Weights saved locally. Will sync later.");
+            // location.reload();
         });
-    });
-
+    }
     // Pure JS version of calculate_warmups (client-side only)
     function generateWarmups(workingWeight, liftName) {
         const BAR = 45;
@@ -63,19 +113,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function calculatePlates(total) {
         if (total <= 45) return "Empty Barbell";
         const perSide = (total - 45) / 2;
-        const plates = [45, 35, 25, 10, 5, 2.5];
+        const plates = [45, 35, 25, 20, 15, 10, 5, 2.5];
         let remaining = perSide;
+        console.log(remaining);
         let result = [];
-
         for (const p of plates) {
             const count = Math.floor(remaining / p);
             if (count > 0) {
-                result.push(count > 1 ? `${count}×${p}` : `${p}`);
-                remaining -= count * p;
+                result.push(`2x${p}`);
+                // result.push(count > 1 ? `${count+1}×${p}` : `${p}`);
+                remaining -= p;
+                console.log(remaining);
                 if (remaining < 1) break;
             }
         }
-        return "bar + " + result.join(" + ");
+        return "bar \n " + result.join("\n");
     }
 });
 
@@ -114,36 +166,41 @@ document.getElementById('complete-btn')?.addEventListener('click', function () {
     };
 
     // OFFLINE FIRST — TRUTH ALWAYS WINS
-    if (navigator.onLine) {
+   if (navigator.onLine) {
         sendWorkoutToServer(payload);
     } else {
         saveWorkoutOffline(payload);
+        showOfflineBanner();
         alert("NO SIGNAL — WORKOUT SAVED OFFLINE.\nWill sync when you're back online, brother.");
-        location.reload();
+        // NO RELOAD — stay on page
     }
 });
 
 // SEND TO SERVER (WHEN ONLINE)
+// SEND TO SERVER — BUT CATCH EVERYTHING
 function sendWorkoutToServer(payload) {
     fetch('/complete-workout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+    })
     .then(data => {
         if (data.success) {
-            alert("REAL GAINS LOGGED — SYNCED TO SERVER!");
+            alert("REAL GAINS LOGGED — SYNCED!");
             location.reload();
         } else {
-            alert("Sync failed — saving offline...");
-            saveWorkoutOffline(payload);
+            throw new Error("Server said no");
         }
     })
     .catch(err => {
-        console.log("Network error — going offline", err);
+        console.log("Network failed — saving offline:", err);
         saveWorkoutOffline(payload);
-        alert("OFFLINE — workout saved locally. Will sync later.");
-        location.reload();
+        showOfflineBanner();
+        alert("OFFLINE — Workout saved locally. Will sync later.");
+        // NO RELOAD
     });
 }

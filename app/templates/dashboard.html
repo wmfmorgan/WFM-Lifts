@@ -21,7 +21,7 @@
                     type="number" 
                     step="5" 
                     id="weight-{{ loop.index }}" 
-                    name="{{ lift.name|lower|replace(' ', '_') }}" 
+                    name="{{ lift.name|lower|replace(' ', '') }}" 
                     value="{{ lift.working_weight }}" 
                     class="weight-input"
                     data-original="{{ lift.working_weight }}"

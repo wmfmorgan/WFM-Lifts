@@ -83,7 +83,7 @@ def calculate_plates(target_weight: float, available_plates: List[float] = None)
         count = int(per_side // plate)
         if count > 0:
             used[plate] = count + 1
-            per_side -= count * plate
+            per_side -= plate
             per_side = round(per_side, 1)
 
     # Build string — always show pairs

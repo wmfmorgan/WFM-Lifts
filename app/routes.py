@@ -292,7 +292,7 @@ def complete_workout():
 @login_required
 def update_working_weights():
     data = request.get_json()
-
+    print("WEIGHT UPDATE PAYLOAD:", data)
     if not data:
         return jsonify(success=False, message="No data received")
 
@@ -303,28 +303,39 @@ def update_working_weights():
 
     db.session.expire(weights)   # ← THIS IS THE NUCLEAR BUTTON
 
-    # Map lift names to DB fields
+    # BULLETPROOF FIELD MAPPING
     field_map = {
-        "Squat": "squat",
-        "Bench Press": "bench",
-        "Press": "press",
-        "Deadlift": "deadlift",
-        "Power Clean": "powerclean",
-        "PowerClean": "powerclean"
+        "squat": "squat",
+        "benchpress": "bench",
+        "bench press": "bench",
+        "bench": "bench",
+        "press": "press",
+        "deadlift": "deadlift",
+        "powerclean": "powerclean",
+        "power clean": "powerclean"
     }
 
     updated = False
     for lift_name, new_weight in data.items():
-        field = field_map.get(lift_name.replace(" ", ""))
+        print(f"Processing: {lift_name} = {new_weight}")
+        key = lift_name.lower().replace(" ", "")
+        field = field_map.get(key)
         if field and hasattr(weights, field):
             old_val = getattr(weights, field)
-            new_val = float(new_weight)
-            if old_val != new_val:
-                setattr(weights, field, new_val)
-                updated = True
+            try:
+                new_val = float(new_weight)
+                if abs(old_val - new_val) > 0.1:  # avoid float precision issues
+                    print(f"Updating {field}: {old_val} → {new_val}")
+                    setattr(weights, field, new_val)
+                    updated = True
+            except (ValueError, TypeError):
+                print(f"Invalid weight value: {new_weight}")
+                pass
 
     if updated:
         db.session.commit()
-        return jsonify(success=True, message="Weights updated — warmups recalculated!")
+        print("DB COMMITTED — WEIGHTS UPDATED")
     else:
-        return jsonify(success=True, message="No changes detected")
+        print("No changes to commit")
+    
+    return jsonify(success=True)
