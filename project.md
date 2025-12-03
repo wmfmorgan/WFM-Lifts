@@ -180,7 +180,7 @@ WFM-Lifts/
 | History Page                  | Done     | Every rep, every failure           |
 | Rest Day logging              | Done     |                                    |
 | Settings page                 | Done     | Phase, plates                      |
-| PWA / Add to Home Screen      | Later    |                                    |
+| PWA / Add to Home Screen      | Done     |                                    |
 | Settings page                 | Later    | Deload, K vs Lbs, Completion Sound |
 | Export data (CSV)             | Later    |                                    |
 | Deploy to Render.com          | Final    | Public URL                         |

@@ -3,8 +3,8 @@ const CACHE_NAME = 'wfm-lifts-v9';
 
 const urlsToCache = [
   '/',                     // index.html
-  '/dashboard',
   '/history',
+  '/history/',  
   '/settings',
   '/login',
   '/logout',
@@ -75,7 +75,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-static/sw.js — DEBUG VERSION
+// static/sw.js — DEBUG VERSION
 
 
 

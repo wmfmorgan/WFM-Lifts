@@ -73,7 +73,24 @@ function syncPending() {
 
     const item = items[0];
     const key = keys[0];
-
+    // REST DAY — HIGHEST PRIORITY (recovery is king)
+    if (item.type === 'rest-day') {
+        fetch('/rest-day', { method: 'GET' })
+        .then(r => {
+            if (!r.ok) throw new Error("Rest day failed");
+            return r.text();
+        })
+        .then(() => {
+            console.log("REST DAY SYNCED — RECOVERY IS KING");
+            deleteAndContinue(key);
+        })
+        .catch(err => {
+            console.log("Rest day sync failed — will retry:", err);
+            // Don't delete — retry later
+        });
+        return;
+    }
+    
     if (item.type === 'weight-update') {
       fetch('/update-working-weights', {
         method: 'POST',

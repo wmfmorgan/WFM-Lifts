@@ -204,3 +204,49 @@ function sendWorkoutToServer(payload) {
         // NO RELOAD
     });
 }
+
+// OFFLINE REST DAY — THE ULTIMATE RECOVERY
+document.getElementById('rest-day-btn')?.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const payload = {
+        type: 'rest-day',
+        date: new Date().toISOString().split('T')[0]  // today's date YYYY-MM-DD
+    };
+
+    if (navigator.onLine) {
+        // Try server first
+        fetch('/rest-day', { method: 'GET' })
+            .then(r => r.text())
+            .then(() => {
+                // alert("REST DAY LOGGED — RECOVERY IS KING!");
+                location.reload();
+            })
+            .catch(() => {
+                // Fall back to offline
+                saveWorkoutOffline(payload);
+                showOfflineBanner();
+                alert("OFFLINE — Rest day saved. Will sync when online.");
+            });
+    } else {
+        saveWorkoutOffline(payload);
+        showOfflineBanner();
+        alert("OFFLINE — Rest day saved. Recovery is king.");
+    }
+});
+
+// ONE GOD FUNCTION — MAKES ALL INTERNAL LINKS WORK OFFLINE
+document.addEventListener('click', function (e) {
+    const link = e.target.closest('a[href^="/"]');
+    if (!link) return;
+    console.log("god mode");
+    const href = link.getAttribute('href');
+
+    // Only intercept internal routes (not external links)
+    if (href.startsWith('/') && !href.startsWith('//')) {
+        e.preventDefault();
+
+        // Offline or online — this always works
+        window.location.href = href;
+    }
+});
