@@ -13,7 +13,12 @@ db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 login_manager.login_view = 'routes.login'
+login_manager.login_message = 'Log in to access this page, brother.'
 login_manager.login_message_category = 'info'
+
+# THIS IS THE KEY LINE — MAKES SESSION PERMANENT
+login_manager.session_protection = "strong"
+login_manager.remember = True   # ← optional, but makes it explicit
 
 def create_app():
     app = Flask(__name__)

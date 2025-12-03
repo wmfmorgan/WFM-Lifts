@@ -134,10 +134,10 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data.lower()).first()
         if user and user.check_password(form.password.data):
-            login_user(user)
+            login_user(user, remember=True)
             flash('LOGGED IN — TIME TO LIFT!', 'success')
             return redirect(url_for('routes.dashboard'))
-        else:
+        else: 
             flash('Invalid username or password', 'danger')
     
     return render_template('login.html', form=form)
