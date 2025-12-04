@@ -200,5 +200,3 @@ We update it as we build.
 
 **WFM Lifts is no longer an app.**  
 **It’s a movement.**
-
-**LET’S FUCKING GO.**
