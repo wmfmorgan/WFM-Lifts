@@ -92,12 +92,15 @@ def dashboard():
             "warmups": sets
         })
     
+    inventory = get_available_plates(current_user.id)
+    
     return render_template(
         'dashboard.html',
         phase=phase,
         workout_type=workout_type,
         lifts=workout_data,
-        today=today.strftime("%A, %B %d")
+        today=today.strftime("%A, %B %d"),
+        inventory=inventory
     )
 
 
@@ -201,10 +204,10 @@ def rest_day():
     today = date.today()
     
     # Check if user already logged today (workout or rest)
-    # existing = WorkoutLog.query.filter_by(user_id=current_user.id, date=today).first()
-    # if existing:
-    #     flash("You already logged today — no double-dipping, brother!", "warning")
-    #     return redirect(url_for('routes.dashboard'))
+    existing = WorkoutLog.query.filter_by(user_id=current_user.id, date=today).first()
+    if existing:
+        flash("You already logged today — no double-dipping, brother!", "warning")
+        return redirect(url_for('routes.dashboard'))
 
     # Log the rest day
     rest_log = WorkoutLog(
@@ -223,6 +226,11 @@ def rest_day():
 @bp.route('/complete-workout', methods=['POST'])
 @login_required
 def complete_workout():
+    today = date.today()
+    existing = WorkoutLog.query.filter_by(user_id=current_user.id, date=today).first()
+    if existing:
+        return jsonify(success=False, message="You already logged today — no double-dipping, brother!")
+
     data = request.get_json()
     lift_details = data.get('lift_details', {})  # { "Squat": {completed_sets: 3, required_sets: 3, actual_weights: [225, 225, 225]} }
     workout_type = data.get('workout_type')

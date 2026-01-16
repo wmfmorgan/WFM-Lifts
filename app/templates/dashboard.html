@@ -17,15 +17,8 @@
             {% for lift in lifts %}
             <div class="weight-input-group">
                 <label for="weight-{{ loop.index }}">{{ lift.name }}</label>
-                <input 
-                    type="number" 
-                    step="5" 
-                    id="weight-{{ loop.index }}" 
-                    name="{{ lift.name|lower|replace(' ', '') }}" 
-                    value="{{ lift.working_weight }}" 
-                    class="weight-input"
-                    data-original="{{ lift.working_weight }}"
-                >
+                <input type="number" step="5" id="weight-{{ loop.index }}" name="{{ lift.name|lower|replace(' ', '') }}"
+                    value="{{ lift.working_weight }}" class="weight-input" data-original="{{ lift.working_weight }}">
                 <span>lb</span>
             </div>
             {% endfor %}
@@ -40,13 +33,13 @@
     <hr style="border:2px solid #333; margin:2rem 0;">
 
     {% for lift in lifts %}
-        <div class="lift-card">
-            <h2>{{ lift.name }}</h2>
-            <p class="working">Working: <strong>{{ lift.working_weight }} lb</strong></p>
+    <div class="lift-card">
+        <h2>{{ lift.name }}</h2>
+        <p class="working">Working: <strong>{{ lift.working_weight }} lb</strong></p>
 
-<div class="sets">
-    {% for set in lift.warmups %}
-        {% if set.is_work %}
+        <div class="sets">
+            {% for set in lift.warmups %}
+            {% if set.is_work %}
             <div class="set work-set" data-lift="{{ lift.name }}">
                 <!-- Working Weight — Big and Bold -->
                 <div class="weight main-weight">
@@ -57,38 +50,33 @@
                 <div class="plates">{{ set.plates }}</div>
 
                 <!-- Button -->
-                <button class="done-btn" onclick="this.classList.toggle('completed')">
+                <button class="done-btn">
                     WORK SET
                 </button>
                 <!-- Actual Weight Input — On Its Own Line, Underneath -->
                 <div class="actual-weight-line">
-                    <input type="text"
-                        inputmode="decimal"
-                        pattern="[0-9]*\.?[0-9]*"
-                        step="5"
-                        value="{{ set.weight }}"
-                        class="actual-input"
-                        placeholder="{{ set.weight }}"
+                    <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" step="5" value="{{ set.weight }}"
+                        class="actual-input" placeholder="{{ set.weight }}"
                         style="text-align: center; font-size: 1.6rem;" />
                 </div>
 
 
             </div>
-        {% else %}
+            {% else %}
             <!-- Warmup Sets — Clean and Simple -->
             <div class="set warmup-set">
                 <div class="weight">{{ set.weight }} lb</div>
                 <div class="reps-sets">{{ set.reps }} × {{ set.sets }}</div>
                 <div class="plates">{{ set.plates }}</div>
-                <button class="done-btn" onclick="this.classList.toggle('completed')">
+                <button class="done-btn">
                     Done
                 </button>
             </div>
-        {% endif %}
-    {% endfor %}
-</div>
+            {% endif %}
+            {% endfor %}
         </div>
-    {% endfor %}    
+    </div>
+    {% endfor %}
 
 </main>
 
@@ -98,13 +86,13 @@
         <i class="bi bi-trophy-fill"></i>
         COMPLETE
     </button>
-    
+
     <a href="#" id="rest-day-btn" class="rest-btn rest-day-btn">
         <i class="bi bi-moon-fill"></i>
         REST
     </a>
 
-     <a href="{{ url_for('routes.history') }}" class="rest-btn view-history-btn">
+    <a href="{{ url_for('routes.history') }}" class="rest-btn view-history-btn">
         <i class="bi bi-journal-text"></i>
         HISTORY
     </a>
@@ -119,5 +107,10 @@
     </a>
 
 </div>
+
+<script>
+    window.USER_INVENTORY = {{ inventory | tojson }};
+</script>
+
 
 {% endblock %}

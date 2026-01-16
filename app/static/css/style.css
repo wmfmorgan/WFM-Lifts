@@ -1,11 +1,38 @@
 /* app/static/css/style.css */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Arial Black', sans-serif; background: #111; color: #fff; min-height: 100vh; }
-.container { max-width: 480px; margin: 0 auto; padding: 1rem; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-header { text-align: center; margin-bottom: 2rem; }
-h1 { font-size: 3rem; color: #ff0; text-shadow: 0 0 10px #ff0; }
-.subtitle { font-size: 1.2rem; opacity: 0.8; }
+body {
+    font-family: 'Arial Black', sans-serif;
+    background: #111;
+    color: #fff;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 3rem;
+    color: #ff0;
+    text-shadow: 0 0 10px #ff0;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
 
 /* FORCE CENTER THE ENTIRE HISTORY PAGE CONTENT */
 .history-page main {
@@ -18,8 +45,10 @@ h1 { font-size: 3rem; color: #ff0; text-shadow: 0 0 10px #ff0; }
 
 .history-page .history-table {
     width: 100%;
-    max-width: 620px;        /* Perfect mobile-to-tablet size */
-    margin: 2rem 0;          /* Vertical spacing only — flex handles horizontal centering */
+    max-width: 620px;
+    /* Perfect mobile-to-tablet size */
+    margin: 2rem 0;
+    /* Vertical spacing only — flex handles horizontal centering */
     border-collapse: collapse;
     background: #222;
     border: 3px solid #444;
@@ -28,43 +57,85 @@ h1 { font-size: 3rem; color: #ff0; text-shadow: 0 0 10px #ff0; }
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
 }
 
-.lift-card { background: #222; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 3px solid #333; }
-h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
-.working { font-size: 1.4rem; margin-bottom: 1rem; color: #0f0; }
+.lift-card {
+    background: #222;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 3px solid #333;
+}
 
-.set { 
-    background: #333; 
-    margin: 0.8rem 0; 
-    padding: 1rem; 
-    border-radius: 12px; 
-    display: grid; 
+h2 {
+    font-size: 2rem;
+    color: #ff0;
+    margin-bottom: 0.5rem;
+}
+
+.working {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #0f0;
+}
+
+.done-btn {
+    background: #0f0;
+    color: #000;
+    border: none;
+    padding: 0.8rem 1rem;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.done-btn:active {
+    transform: scale(0.9);
+}
+
+.done-btn.completed {
+    background: #444;
+    color: #888;
+    text-decoration: line-through;
+}
+
+.set {
+    background: #333;
+    margin: 0.8rem 0;
+    padding: 1rem;
+    border-radius: 12px;
+    display: grid;
     grid-template-columns: 1fr 1fr 1fr auto;
     align-items: center;
     gap: 0.5rem;
     font-size: 1.1rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
 }
-.work-set { background: #004155; border: 2px solid #0022ff; font-weight: bold; }
-.weight { font-weight: bold; color: #0ff; }
-.plates { font-size: 0.9rem; opacity: 0.9; }
 
-.done-btn {
-    background: #0f0; color: #000; border: none; padding: 0.8rem 1rem;
-    border-radius: 50px; font-weight: bold; cursor: pointer;
+.set.is-completed {
+    background: #1a1a1a;
+    border-color: #0f0;
+    opacity: 0.7;
 }
-.done-btn.completed { background: #333; text-decoration: line-through; }
+
+.set.is-completed .weight,
+.set.is-completed .reps-sets,
+.set.is-completed .plates {
+    color: #555;
+}
 
 .rest-btn {
     width: 100%;
     max-width: 500px;
-    display: block; 
-    text-align: center; 
-    background: #f00; 
+    display: block;
+    text-align: center;
+    background: #f00;
     color: #fff;
-    padding: 1.5rem; 
-    font-size: 2rem; 
-    text-decoration: none; 
+    padding: 1.5rem;
+    font-size: 2rem;
+    text-decoration: none;
     border-radius: 20px;
-    margin-top: 2rem; 
+    margin-top: 2rem;
     font-weight: bold;
 }
 
@@ -78,61 +149,63 @@ h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
     color: #fff !important;
 }
 
-.view-history-btn{
+.view-history-btn {
     background: rgb(102, 114, 134) !important;
     color: #fff !important;
 }
 
-.settings-btn{
+.settings-btn {
     background: rgb(59, 86, 129) !important;
     color: #fff !important;
 }
 
-.logout-btn{
+.logout-btn {
     background: rgb(25, 60, 116) !important;
     color: #fff !important;
 }
+
 /* Add to style.css */
 .work-set .done-btn.completed {
     background: #0f0 !important;
     color: #000 !important;
 }
+
 .weight-editor-card {
-    background:#222;
-    padding:1.5rem;
-    border-radius:16px;
-    margin-bottom:2rem;
-    border:3px solid #0f0;
+    background: #222;
+    padding: 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    border: 3px solid #0f0;
 }
 
 .weight-input-group {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin:0.8rem 0;
-    font-size:1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.8rem 0;
+    font-size: 1.3rem;
 }
 
 .weight-input-group label {
-    flex:1;
-    color:#ff0;
+    flex: 1;
+    color: #ff0;
 }
 
 .weight-input {
-    width:120px;
-    padding:0.8rem;
-    font-size:1.4rem;
-    text-align:center;
-    background:#333;
-    border:2px solid #0f0;
-    color:#fff;
-    border-radius:8px;
+    width: 120px;
+    padding: 0.8rem;
+    font-size: 1.4rem;
+    text-align: center;
+    background: #333;
+    border: 2px solid #0f0;
+    color: #fff;
+    border-radius: 8px;
 }
 
 .weight-input:focus {
-    outline:none;
-    border-color:#ff0;
-    box-shadow:0 0 15px #0f0;
+    outline: none;
+    border-color: #ff0;
+    box-shadow: 0 0 15px #0f0;
 }
 
 .actual-weight {
@@ -163,8 +236,10 @@ h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
 /* HISTORY PAGE — TRUTH TABLE STYLING */
 .history-table {
     width: 100%;
-    max-width: 600px;     /* Keeps it tight and centered */
-    margin: 2rem auto;    /* ← THIS CENTERS THE TABLE UNDER "HISTORY", BROTHER! */
+    max-width: 600px;
+    /* Keeps it tight and centered */
+    margin: 2rem auto;
+    /* ← THIS CENTERS THE TABLE UNDER "HISTORY", BROTHER! */
     border-collapse: collapse;
     background: #222;
     font-size: 1rem;
@@ -189,11 +264,13 @@ h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
 }
 
 .history-table tr.success-row {
-    background: #020;     /* Dark green for success */
+    background: #020;
+    /* Dark green for success */
 }
 
 .history-table tr.failed-row {
-    background: #400;     /* Blood red for failure */
+    background: #400;
+    /* Blood red for failure */
 }
 
 .history-table tr.rest-row {
@@ -231,22 +308,61 @@ h2 { font-size: 2rem; color: #ff0; margin-bottom: 0.5rem; }
 }
 
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.shake {
+    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
 }
 
 /* WORKOUT TYPE ROW COLORS — A DAYS vs B DAYS vs C DAYS */
 tr.workout-a-row {
-    background: #001a1a !important;   /* Deep teal for A days */
+    background: #001a1a !important;
+    /* Deep teal for A days */
 }
 
 tr.workout-b-row {
-    background: #1a001a !important;   /* Deep purple for B days */
+    background: #1a001a !important;
+    /* Deep purple for B days */
 }
 
 tr.workout-c-row {
-    background: #1a1a00 !important;   /* Dark gold for C days (Phase 3) */
+    background: #1a1a00 !important;
+    /* Dark gold for C days (Phase 3) */
 }
 
 tr.rest-row {
@@ -254,8 +370,10 @@ tr.rest-row {
     color: #999;
     font-style: italic;
 }
+
 .plates {
-    white-space: pre-line;        /* respects \n */
+    white-space: pre-line;
+    /* respects \n */
     text-align: left;
     line-height: 1.5;
     padding: 0.4rem 0;
@@ -273,7 +391,8 @@ tr.rest-row {
 } */
 
 .actual-input {
-    -moz-appearance: textfield;     /* Firefox */
+    -moz-appearance: textfield;
+    /* Firefox */
     appearance: textfield;
     width: 120px;
     padding: 12px;

@@ -12,12 +12,13 @@ BAR_WEIGHT = 45.0
 # Default plates — user can override in settings later
 DEFAULT_PLATES = [45, 35, 25, 10, 5, 2.5]
 
-def get_available_plates(user_id=None):
+def get_available_plates(user_id=None) -> Dict[float, int]:
     if user_id:
         plates = Plate.query.filter_by(user_id=user_id).all()
         if plates:
-            return sorted([p.weight for p in plates], reverse=True)
-    return DEFAULT_PLATES.copy()  # only if you somehow have zero plates
+            return {p.weight: p.pair_count for p in plates}
+    # Default inventory: infinite of everything for calculation, but we'll return 10 pairs if none specified
+    return {p: 10 for p in DEFAULT_PLATES}
 
 def calculate_warmups(working_weight: float, exercise: str = "", user_id=None) -> List[Dict]:
     plates = get_available_plates(user_id)
@@ -61,9 +62,13 @@ def calculate_warmups(working_weight: float, exercise: str = "", user_id=None) -
 
     return warmups
 
-def calculate_plates(target_weight: float, available_plates: List[float] = None) -> str:
-    if available_plates is None:
-        available_plates = get_available_plates()
+def calculate_plates(target_weight: float, available_inventory: Dict[float, int] = None) -> str:
+    if available_inventory is None:
+        available_inventory = get_available_plates()
+    
+    # If a list was passed, convert to dict with large counts
+    if isinstance(available_inventory, list):
+        available_inventory = {p: 10 for p in available_inventory}
 
     if abs(target_weight - BAR_WEIGHT) < 0.1:
         return "Empty Barbell"
@@ -74,27 +79,35 @@ def calculate_plates(target_weight: float, available_plates: List[float] = None)
     if per_side <= 0:
         return "Empty Barbell"
 
-    # Sort descending
-    plates = sorted(available_plates, reverse=True)
+    # Perfect math uses all standard plates regardless of inventory
+    # But we want to calculate based on what *should* be there
+    # Let's use a standard list for the math breakdown
+    standard_plates = sorted(available_inventory.keys(), reverse=True)
+    
+    needed = {}
+    remaining = per_side
 
-    used = {}
-
-    for plate in plates:
-        count = int(per_side // plate)
+    for plate in standard_plates:
+        count = int(remaining // plate)
         if count > 0:
-            used[plate] = count
-            per_side -= (count * plate)
-            per_side = round(per_side, 1)
+            needed[plate] = count
+            remaining -= (count * plate)
+            remaining = round(remaining, 1)
 
-    # Build string — always show pairs
+    # Build string — flag what's missing
     parts = []
     
-    for plate in sorted(used.keys(), reverse=True):
-        count = used[plate]
-        if count == 1:
-            parts.append(f"{plate}")
-        else:
-            parts.append(f"{count}×{plate}")
+    for plate in sorted(needed.keys(), reverse=True):
+        count_needed = needed[plate]
+        count_available = available_inventory.get(plate, 0)
+        
+        display = f"{count_needed}×{plate}" if count_needed > 1 else f"{plate}"
+        
+        if count_needed > count_available:
+            missing = count_needed - count_available
+            display += f" (MISSING {missing})"
+            
+        parts.append(display)
 
     result = "\n".join(parts)
     return f"bar \n {result}" if result else "Empty Barbell"

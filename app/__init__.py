@@ -27,14 +27,31 @@ def create_app():
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
     # === CONFIG — Works locally AND on Render ===
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'macho-man-secret-yeah'
-    app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL') or 
-    'postgresql://postgres:password@localhost/lifts'
-    ).replace("postgres://", "postgresql://", 1)  # Render fix
+    
+    database_url = os.environ.get('DATABASE_URL')
+    # If it's the default localhost placeholder OR empty, use SQLite
+    if database_url and "localhost" not in database_url and database_url.strip() != "":
+        # Render and Supabase fix
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        # Fallback to local SQLite for development
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        instance_path = os.path.join(basedir, '..', 'instance')
+        if not os.path.exists(instance_path):
+            os.makedirs(instance_path)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(instance_path, 'lifts.db')
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Initialize extensions
     db.init_app(app)
+    
+    # Ensure tables exist for SQLite
+    with app.app_context():
+        if app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):
+            db.create_all()
     migrate.init_app(app, db)
     login_manager.init_app(app)
 

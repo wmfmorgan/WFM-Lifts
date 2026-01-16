@@ -113,25 +113,72 @@ document.addEventListener('DOMContentLoaded', function () {
     function calculatePlates(total) {
         if (total <= 45) return "Empty Barbell";
         const perSide = (total - 45) / 2;
-        const plates = [45, 35, 25, 20, 15, 10, 5, 2.5];
+        const weights = [45, 35, 25, 20, 15, 10, 5, 2.5];
         let remaining = perSide;
-        console.log(remaining);
         let result = [];
-        for (const p of plates) {
-            const count = Math.floor(remaining / p);
-            if (count > 0) {
-                if (count === 1) {
-                    result.push(`${p}`);
-                } else {
-                    result.push(`${count}×${p}`);
+
+        const inventory = window.USER_INVENTORY || {};
+
+        for (const p of weights) {
+            const countNeeded = Math.floor(remaining / p);
+            if (countNeeded > 0) {
+                let display = (countNeeded === 1) ? `${p}` : `${countNeeded}×${p}`;
+
+                // Compare with inventory
+                const countAvailable = inventory[p] !== undefined ? inventory[p] : 10;
+                if (countNeeded > countAvailable) {
+                    display += ` (MISSING ${countNeeded - countAvailable})`;
                 }
-                remaining -= (count * p);
+
+                result.push(display);
+                remaining -= (countNeeded * p);
                 remaining = Math.round(remaining * 10) / 10;
                 if (remaining < 0.1) break;
             }
         }
         return "bar \n " + result.join("\n");
     }
+
+    // --- SET COMPLETION LOGIC (SEQUENTIAL) ---
+    document.addEventListener('click', function (e) {
+        if (!e.target.classList.contains('done-btn')) return;
+
+        const btn = e.target;
+        const currentSet = btn.closest('.set');
+        const liftCard = btn.closest('.lift-card');
+
+        // If it's a work set, enforce order
+        if (currentSet.classList.contains('work-set')) {
+            const allWorkSets = Array.from(liftCard.querySelectorAll('.work-set'));
+            const currentIndex = allWorkSets.indexOf(currentSet);
+
+            // If toggling ON, check if all previous sets are done
+            if (!btn.classList.contains('completed') && currentIndex > 0) {
+                const prevSet = allWorkSets[currentIndex - 1];
+                if (!prevSet.querySelector('.done-btn').classList.contains('completed')) {
+                    // Shake effect for skipping
+                    currentSet.classList.add('shake');
+                    setTimeout(() => currentSet.classList.remove('shake'), 400);
+                    return;
+                }
+            }
+
+            // If toggling OFF, check if any later sets are done
+            if (btn.classList.contains('completed') && currentIndex < allWorkSets.length - 1) {
+                const nextSet = allWorkSets[currentIndex + 1];
+                if (nextSet.querySelector('.done-btn').classList.contains('completed')) {
+                    // Cannot undo if later sets are already locked in
+                    currentSet.classList.add('shake');
+                    setTimeout(() => currentSet.classList.remove('shake'), 400);
+                    return;
+                }
+            }
+        }
+
+        // Apply toggle
+        btn.classList.toggle('completed');
+        currentSet.classList.toggle('is-completed');
+    });
 });
 
 // WORKOUT COMPLETE BUTTON — LOCK IN +5 lb GAINS
@@ -155,6 +202,18 @@ document.getElementById('complete-btn')?.addEventListener('click', function () {
             actual_weights: actualWeights
         };
     });
+
+    let totalRequired = 0;
+    let totalCompleted = 0;
+    for (const lift in liftData) {
+        totalRequired += liftData[lift].required_sets;
+        totalCompleted += liftData[lift].completed_sets;
+    }
+
+    if (totalCompleted < totalRequired) {
+        const leaveJobUnfinished = confirm("HOLD ON, BROTHER! You haven't finished all your sets. Are you sure you want to log this as an incomplete workout?");
+        if (!leaveJobUnfinished) return;
+    }
 
     const phaseLine = Array.from(document.querySelectorAll('.subtitle'))
         .find(el => el.textContent.includes('Phase'));
@@ -193,7 +252,7 @@ function sendWorkoutToServer(payload) {
         })
         .then(data => {
             if (data.success) {
-                alert("REAL GAINS LOGGED — SYNCED!");
+                alert("SET IN STONE! Your gains are logged, brother!");
                 location.reload();
             } else {
                 throw new Error("Server said no");
@@ -203,7 +262,7 @@ function sendWorkoutToServer(payload) {
             console.log("Network failed — saving offline:", err);
             saveWorkoutOffline(payload);
             showOfflineBanner();
-            alert("OFFLINE — Workout saved locally. Will sync later.");
+            alert("NO SIGNAL, NO PROBLEM! Workout saved offline. We'll sync it when you're back, brother.");
             // NO RELOAD
         });
 }
@@ -222,19 +281,19 @@ document.getElementById('rest-day-btn')?.addEventListener('click', function (e) 
         fetch('/rest-day', { method: 'GET' })
             .then(r => r.text())
             .then(() => {
-                // alert("REST DAY LOGGED — RECOVERY IS KING!");
+                // Flash message on server will handle this after reload
                 location.reload();
             })
             .catch(() => {
                 // Fall back to offline
                 saveWorkoutOffline(payload);
                 showOfflineBanner();
-                alert("OFFLINE — Rest day saved. Will sync when online.");
+                alert("NO SIGNAL — Rest day saved offline. Recovery is king, but sync it soon!");
             });
     } else {
         saveWorkoutOffline(payload);
         showOfflineBanner();
-        alert("OFFLINE — Rest day saved. Recovery is king.");
+        alert("OFFLINE — Rest day saved locally. Enjoy the recovery, brother!");
     }
 });
 

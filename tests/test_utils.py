@@ -26,3 +26,13 @@ def test_calculate_plates_405():
     result = calculate_plates(405.0, [45, 25, 10, 5, 2.5])
     print(f"Result for 405: {result}")
     assert "4×45" in result
+
+def test_calculate_plates_inventory_insufficient():
+    # Target 315 -> 135 per side -> three 45 plates
+    # BUT user only has ONE pair of 45s
+    inventory = {45: 1, 25: 2, 10: 2, 5: 2, 2.5: 2}
+    result = calculate_plates(315.0, inventory)
+    # The math should still show 3x45 but flag what's missing
+    # Format choice: "3×45 (MISSING 2)"
+    assert "3×45" in result
+    assert "MISSING 2" in result
