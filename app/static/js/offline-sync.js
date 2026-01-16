@@ -12,7 +12,7 @@ request.onerror = () => {
 
 request.onsuccess = () => {
   db = request.result;
-  console.log("Offline DB ready — WFM Lifts never forgets");
+
 };
 
 request.onupgradeneeded = (event) => {
@@ -23,7 +23,7 @@ request.onupgradeneeded = (event) => {
 };
 
 // Save workout when offline
-window.saveWorkoutOffline = function(workoutData) {
+window.saveWorkoutOffline = function (workoutData) {
   if (!db) {
     console.warn("DB not ready yet — will try again in 1s");
     setTimeout(() => saveWorkoutOffline(workoutData), 1000);
@@ -33,7 +33,7 @@ window.saveWorkoutOffline = function(workoutData) {
   const store = tx.objectStore(STORE_NAME);
   store.add(workoutData);
   tx.oncomplete = () => {
-    console.log("Workout saved offline");
+
     showOfflineBanner();
   };
 };
@@ -44,7 +44,7 @@ function syncPending() {
 
   const tx = db.transaction(STORE_NAME, 'readonly');
   const store = tx.objectStore(STORE_NAME);
-  
+
   const itemsRequest = store.getAll();
   const keysRequest = store.getAllKeys();
 
@@ -75,33 +75,33 @@ function syncPending() {
     const key = keys[0];
     // REST DAY — HIGHEST PRIORITY (recovery is king)
     if (item.type === 'rest-day') {
-        fetch('/rest-day', { method: 'GET' })
+      fetch('/rest-day', { method: 'GET' })
         .then(r => {
-            if (!r.ok) throw new Error("Rest day failed");
-            return r.text();
+          if (!r.ok) throw new Error("Rest day failed");
+          return r.text();
         })
         .then(() => {
-            console.log("REST DAY SYNCED — RECOVERY IS KING");
-            deleteAndContinue(key);
+
+          deleteAndContinue(key);
         })
         .catch(err => {
-            console.log("Rest day sync failed — will retry:", err);
-            // Don't delete — retry later
+
+          // Don't delete — retry later
         });
-        return;
+      return;
     }
-    
+
     if (item.type === 'weight-update') {
       fetch('/update-working-weights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(item.updates)
       })
-      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(data => {
-        if (data.success) deleteAndContinue(key);
-      })
-      .catch(err => console.log("Weight sync failed (retry):", err));
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(data => {
+          if (data.success) deleteAndContinue(key);
+        })
+        .catch(err => { /* retry later */ });
       return;
     }
 
@@ -111,11 +111,11 @@ function syncPending() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item)
     })
-    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-    .then(data => {
-      if (data.success) deleteAndContinue(key);
-    })
-    .catch(err => console.log("Workout sync failed (retry):", err));
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(data => {
+        if (data.success) deleteAndContinue(key);
+      })
+      .catch(err => { /* retry later */ });
   }
 
   function deleteAndContinue(key) {

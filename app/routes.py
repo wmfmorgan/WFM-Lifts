@@ -352,7 +352,7 @@ def update_working_weights():
                     setattr(weights, field, new_val)
                     updated = True
             except (ValueError, TypeError):
-                print(f"Invalid weight value: {new_weight}")
+
                 pass
 
     if updated:

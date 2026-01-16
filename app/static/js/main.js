@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const newWeight = updates[liftName];
                     const workingWeightEl = card.querySelector('.working-weight');
                     if (workingWeightEl) workingWeightEl.textContent = `${newWeight} lb`;
-                    console.log('generating new lifts');
+
                     // Re-generate warmups
                     const warmups = generateWarmups(newWeight, liftName);
                     const setsContainer = card.querySelector('.sets');
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(err => {
-                console.log("Weight update failed — saving offline", err);
+
                 saveWorkoutOffline({ type: 'weight-update', updates });
                 showOfflineBanner();  // reuse the banner function
                 alert("OFFLINE — Weights saved locally. Will sync later.");
@@ -258,7 +258,7 @@ function sendWorkoutToServer(payload) {
             }
         })
         .catch(err => {
-            console.log("Network failed — saving offline:", err);
+
             saveWorkoutOffline(payload);
             showOfflineBanner();
             alert("NO SIGNAL, NO PROBLEM! Workout saved offline. We'll sync it when you're back, brother.");
@@ -311,7 +311,7 @@ document.getElementById('rest-day-btn')?.addEventListener('click', function (e) 
 document.addEventListener('click', function (e) {
     const link = e.target.closest('a[href^="/"]');
     if (!link) return;
-    console.log("god mode");
+
     const href = link.getAttribute('href');
 
     // Only intercept internal routes (not external links)
