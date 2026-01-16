@@ -127,12 +127,12 @@ graph TD;
 | Flask-SQLAlchemy    | latest                      |
 | Flask-Migrate       | latest                      |
 | Flask-WTF           | latest                      |
-| PostgreSQL          | 16+ (local + Render)        |
+| Supabase PostgreSQL | Free Tier (replaces Render DB) |
 | psycopg2-binary     | latest                      |
 | Jinja2              | latest                      |
 | Werkzeug            | latest                      |
 | Frontend            | Vanilla JS + CSS            |
-| Hosting (future)    | Render.com (free tier)      |
+| Hosting             | Render.com (free tier)      |
 
 ## Folder Structure
 ```
@@ -165,7 +165,8 @@ WFM-Lifts/
 | No automatic +5 lb            | Only earned. Failed sets = same weight next time                       |
 | Vanilla JS + CSS              | Fast, mobile-first, no build step                                      |
 | Mobile-first design           | Used at the gym — must be perfect on phone                             |
-| Render.com deployment         | Free, zero config, GitHub auto-deploy                                  |
+| Render.com deployment         | Free tier for app hosting                              |
+| Supabase PostgreSQL           | Persistent free tier DB (replaces Render Postgres)     |
 | All CSS & JS is kept          | For cleanliness                                                        |
 | separate files                |                                                                        |
 
