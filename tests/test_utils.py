@@ -18,4 +18,11 @@ def test_calculate_plates_225():
 def test_calculate_plates_315():
     # Target 315 -> 135 per side -> three 45 plates
     result = calculate_plates(315.0, [45, 25, 10, 5, 2.5])
+    print(f"Result for 315: {result}")
     assert "3×45" in result
+
+def test_calculate_plates_405():
+    # Target 405 -> 180 per side -> four 45 plates
+    result = calculate_plates(405.0, [45, 25, 10, 5, 2.5])
+    print(f"Result for 405: {result}")
+    assert "4×45" in result

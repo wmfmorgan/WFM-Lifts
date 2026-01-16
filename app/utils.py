@@ -82,8 +82,8 @@ def calculate_plates(target_weight: float, available_plates: List[float] = None)
     for plate in plates:
         count = int(per_side // plate)
         if count > 0:
-            used[plate] = count + 1
-            per_side -= plate
+            used[plate] = count
+            per_side -= (count * plate)
             per_side = round(per_side, 1)
 
     # Build string — always show pairs
@@ -94,7 +94,7 @@ def calculate_plates(target_weight: float, available_plates: List[float] = None)
         if count == 1:
             parts.append(f"{plate}")
         else:
-            parts.append(f"2×{plate}")
+            parts.append(f"{count}×{plate}")
 
     result = "\n".join(parts)
     return f"bar \n {result}" if result else "Empty Barbell"

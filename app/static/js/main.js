@@ -21,12 +21,12 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("OFFLINE — Weights saved locally. Will sync when online.");
             // location.reload();
             Object.keys(updates).forEach(liftName => {
-            const card = Array.from(document.querySelectorAll('.lift-card'))
-                .find(c => {
-                                const headerText = c.querySelector('h2')?.textContent || '';
-                                return headerText.trim().replace(/\s+/g, ' ') === liftName;
-                            });
-            if (card) {
+                const card = Array.from(document.querySelectorAll('.lift-card'))
+                    .find(c => {
+                        const headerText = c.querySelector('h2')?.textContent || '';
+                        return headerText.trim().replace(/\s+/g, ' ') === liftName;
+                    });
+                if (card) {
                     const newWeight = updates[liftName];
                     const workingWeightEl = card.querySelector('.working-weight');
                     if (workingWeightEl) workingWeightEl.textContent = `${newWeight} lb`;
@@ -61,20 +61,20 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updates)
         })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                alert('WORKING WEIGHTS UPDATED — LOCKED IN!');
-                location.reload();
-            }
-        })
-        .catch(err => {
-            console.log("Weight update failed — saving offline", err);
-            saveWorkoutOffline({ type: 'weight-update', updates });
-            showOfflineBanner();  // reuse the banner function
-            alert("OFFLINE — Weights saved locally. Will sync later.");
-            // location.reload();
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('WORKING WEIGHTS UPDATED — LOCKED IN!');
+                    location.reload();
+                }
+            })
+            .catch(err => {
+                console.log("Weight update failed — saving offline", err);
+                saveWorkoutOffline({ type: 'weight-update', updates });
+                showOfflineBanner();  // reuse the banner function
+                alert("OFFLINE — Weights saved locally. Will sync later.");
+                // location.reload();
+            });
     }
     // Pure JS version of calculate_warmups (client-side only)
     function generateWarmups(workingWeight, liftName) {
@@ -93,8 +93,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             sets.push({ weight: BAR, reps: 5, sets: 2, plates: "Empty Barbell", is_work: false });
             sets.push({ weight: BAR + jump, reps: 5, sets: 1, plates: calculatePlates(BAR + jump), is_work: false });
-            sets.push({ weight: BAR + 2*jump, reps: 3, sets: 1, plates: calculatePlates(BAR + 2*jump), is_work: false });
-            sets.push({ weight: BAR + 3*jump, reps: 2, sets: 1, plates: calculatePlates(BAR + 3*jump), is_work: false });
+            sets.push({ weight: BAR + 2 * jump, reps: 3, sets: 1, plates: calculatePlates(BAR + 2 * jump), is_work: false });
+            sets.push({ weight: BAR + 3 * jump, reps: 2, sets: 1, plates: calculatePlates(BAR + 3 * jump), is_work: false });
         }
 
         // Work sets
@@ -120,11 +120,14 @@ document.addEventListener('DOMContentLoaded', function () {
         for (const p of plates) {
             const count = Math.floor(remaining / p);
             if (count > 0) {
-                result.push(`2x${p}`);
-                // result.push(count > 1 ? `${count+1}×${p}` : `${p}`);
-                remaining -= p;
-                console.log(remaining);
-                if (remaining < 1) break;
+                if (count === 1) {
+                    result.push(`${p}`);
+                } else {
+                    result.push(`${count}×${p}`);
+                }
+                remaining -= (count * p);
+                remaining = Math.round(remaining * 10) / 10;
+                if (remaining < 0.1) break;
             }
         }
         return "bar \n " + result.join("\n");
@@ -154,11 +157,11 @@ document.getElementById('complete-btn')?.addEventListener('click', function () {
     });
 
     const phaseLine = Array.from(document.querySelectorAll('.subtitle'))
-    .find(el => el.textContent.includes('Phase'));
+        .find(el => el.textContent.includes('Phase'));
 
-    const workout_type = phaseLine 
-    ? phaseLine.textContent.split(' • ')[1]?.split(' ')[1] 
-    : 'A';
+    const workout_type = phaseLine
+        ? phaseLine.textContent.split(' • ')[1]?.split(' ')[1]
+        : 'A';
 
     const payload = {
         lift_details: liftData,
@@ -166,7 +169,7 @@ document.getElementById('complete-btn')?.addEventListener('click', function () {
     };
 
     // OFFLINE FIRST — TRUTH ALWAYS WINS
-   if (navigator.onLine) {
+    if (navigator.onLine) {
         sendWorkoutToServer(payload);
     } else {
         saveWorkoutOffline(payload);
@@ -184,25 +187,25 @@ function sendWorkoutToServer(payload) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
-    .then(r => {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-    })
-    .then(data => {
-        if (data.success) {
-            alert("REAL GAINS LOGGED — SYNCED!");
-            location.reload();
-        } else {
-            throw new Error("Server said no");
-        }
-    })
-    .catch(err => {
-        console.log("Network failed — saving offline:", err);
-        saveWorkoutOffline(payload);
-        showOfflineBanner();
-        alert("OFFLINE — Workout saved locally. Will sync later.");
-        // NO RELOAD
-    });
+        .then(r => {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert("REAL GAINS LOGGED — SYNCED!");
+                location.reload();
+            } else {
+                throw new Error("Server said no");
+            }
+        })
+        .catch(err => {
+            console.log("Network failed — saving offline:", err);
+            saveWorkoutOffline(payload);
+            showOfflineBanner();
+            alert("OFFLINE — Workout saved locally. Will sync later.");
+            // NO RELOAD
+        });
 }
 
 // OFFLINE REST DAY — THE ULTIMATE RECOVERY

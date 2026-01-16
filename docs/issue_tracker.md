@@ -55,3 +55,11 @@ Users can accidentally submit an incomplete workout.
 - *Requirement:* If the "COMPLETE" button is clicked but there are unmarked/incomplete work sets:
     1. Show a confirmation modal/alert: "Are you sure you want to complete? There's incomplete work sets."
     2. Provide "Yes" (proceed with failure recorded) and "No" (cancel) options.
+
+### [IMP-005] Feedback for Rest Day Logging
+**Severity:** Low
+**Location:** `app/routes.py` -> `rest_day()` / `app/static/js/main.js`
+**Description:**
+Users currently click the "REST" button and the page reloads, but there is no explicit visual confirmation if the action succeeded or failed.
+- *Requirement:* Display a toast message or alert upon successfully logging a rest day (e.g., "REST DAY LOGGED — RECOVERY IS KING!") or an error message if it fails.
+
