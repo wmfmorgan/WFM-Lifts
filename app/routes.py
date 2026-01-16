@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from datetime import date, timedelta
 from app.models import WorkoutLog, StartingWeights
-from app.utils import calculate_warmups
+from app.utils import calculate_warmups, get_available_plates
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import RegistrationForm, LoginForm
@@ -205,11 +205,27 @@ def rest_day():
     
     # Check if user already logged today (workout or rest)
     existing = WorkoutLog.query.filter_by(user_id=current_user.id, date=today).first()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.headers.get('Accept') == 'application/json':
+        if existing:
+            return jsonify(success=False, message="You already logged today — no double-dipping, brother!")
+        
+        rest_log = WorkoutLog(
+            user_id=current_user.id,
+            date=today,
+            phase=current_user.current_phase,
+            workout_type="R",
+            is_rest_day=True
+        )
+        db.session.add(rest_log)
+        db.session.commit()
+        return jsonify(success=True, message="REST DAY LOGGED — RECOVERY IS KING, BROTHER!")
+
     if existing:
         flash("You already logged today — no double-dipping, brother!", "warning")
         return redirect(url_for('routes.dashboard'))
 
-    # Log the rest day
+    # Log the rest day (standard redirect path)
     rest_log = WorkoutLog(
         user_id=current_user.id,
         date=today,

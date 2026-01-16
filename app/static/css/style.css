@@ -124,6 +124,22 @@ h2 {
     color: #555;
 }
 
+.work-set {
+    background: #004155;
+    border: 2px solid #0022ff;
+    font-weight: bold;
+}
+
+.weight {
+    font-weight: bold;
+    color: #0ff;
+}
+
+.plates {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
 .rest-btn {
     width: 100%;
     max-width: 500px;
@@ -159,16 +175,46 @@ h2 {
     color: #fff !important;
 }
 
-.logout-btn {
-    background: rgb(25, 60, 116) !important;
-    color: #fff !important;
+/* FLASH MESSAGES — BELTS OF CHAMPIONS */
+.flash {
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.2rem;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid transparent;
 }
 
-/* Add to style.css */
-.work-set .done-btn.completed {
-    background: #0f0 !important;
-    color: #000 !important;
+.flash.success {
+    background: #004d00;
+    color: #0f0;
+    border-color: #0f0;
+    text-shadow: 0 0 10px #0f0;
 }
+
+.flash.warning,
+.flash.error {
+    background: #4d0000;
+    color: #f00;
+    border-color: #f00;
+    text-shadow: 0 0 10px #f00;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 
 .weight-editor-card {
     background: #222;

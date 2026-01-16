@@ -147,31 +147,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const currentSet = btn.closest('.set');
         const liftCard = btn.closest('.lift-card');
 
-        // If it's a work set, enforce order
-        if (currentSet.classList.contains('work-set')) {
-            const allWorkSets = Array.from(liftCard.querySelectorAll('.work-set'));
-            const currentIndex = allWorkSets.indexOf(currentSet);
+        // Enforce order across ALL sets (warmup + work)
+        const allSets = Array.from(liftCard.querySelectorAll('.set'));
+        const currentIndex = allSets.indexOf(currentSet);
 
-            // If toggling ON, check if all previous sets are done
-            if (!btn.classList.contains('completed') && currentIndex > 0) {
-                const prevSet = allWorkSets[currentIndex - 1];
-                if (!prevSet.querySelector('.done-btn').classList.contains('completed')) {
-                    // Shake effect for skipping
-                    currentSet.classList.add('shake');
-                    setTimeout(() => currentSet.classList.remove('shake'), 400);
-                    return;
-                }
+        // If toggling ON, check if all previous sets are done
+        if (!btn.classList.contains('completed') && currentIndex > 0) {
+            const prevSet = allSets[currentIndex - 1];
+            if (!prevSet.querySelector('.done-btn').classList.contains('completed')) {
+                // Shake effect for skipping
+                currentSet.classList.add('shake');
+                setTimeout(() => currentSet.classList.remove('shake'), 400);
+                return;
             }
+        }
 
-            // If toggling OFF, check if any later sets are done
-            if (btn.classList.contains('completed') && currentIndex < allWorkSets.length - 1) {
-                const nextSet = allWorkSets[currentIndex + 1];
-                if (nextSet.querySelector('.done-btn').classList.contains('completed')) {
-                    // Cannot undo if later sets are already locked in
-                    currentSet.classList.add('shake');
-                    setTimeout(() => currentSet.classList.remove('shake'), 400);
-                    return;
-                }
+        // If toggling OFF, check if any later sets are done
+        if (btn.classList.contains('completed') && currentIndex < allSets.length - 1) {
+            const nextSet = allSets[currentIndex + 1];
+            if (nextSet.querySelector('.done-btn').classList.contains('completed')) {
+                // Cannot undo if later sets are already locked in
+                currentSet.classList.add('shake');
+                setTimeout(() => currentSet.classList.remove('shake'), 400);
+                return;
             }
         }
 
@@ -247,7 +245,7 @@ function sendWorkoutToServer(payload) {
         body: JSON.stringify(payload)
     })
         .then(r => {
-            if (!r.ok) throw new Error("HTTP " + r.status);
+            if (!r.ok) throw new Error("NETWORK_FAILURE");
             return r.json();
         })
         .then(data => {
@@ -255,7 +253,8 @@ function sendWorkoutToServer(payload) {
                 alert("SET IN STONE! Your gains are logged, brother!");
                 location.reload();
             } else {
-                throw new Error("Server said no");
+                // Server explicitly said NO (e.g. duplicate logging)
+                alert(data.message || "The server blocked this move, brother!");
             }
         })
         .catch(err => {
@@ -278,11 +277,22 @@ document.getElementById('rest-day-btn')?.addEventListener('click', function (e) 
 
     if (navigator.onLine) {
         // Try server first
-        fetch('/rest-day', { method: 'GET' })
-            .then(r => r.text())
-            .then(() => {
-                // Flash message on server will handle this after reload
-                location.reload();
+        fetch('/rest-day', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(r => {
+                if (!r.ok) throw new Error("NETWORK_FAILURE");
+                return r.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert(data.message || "RECOVERY IS KING! Rest day logged, brother!");
+                    location.reload();
+                } else {
+                    // Already logged
+                    alert(data.message || "No double-dipping, brother!");
+                }
             })
             .catch(() => {
                 // Fall back to offline
