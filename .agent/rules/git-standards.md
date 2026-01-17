@@ -18,15 +18,7 @@ trigger: always_on
 - Feature branches for new capabilities: `feature/ghost-piece`, `feature/scoring`
 - **Branch Naming**: `feature/`, `fix/`, `refactor/`, `test/`
 
-- Commit format - <type>: <description>
-- description: phase-specific message (example: phase 1 core game logic with tetromino, board, and scoring tests) 
-- type: 
-  - `feat:` New features
-  - `fix:` Bug fixes
-  - `refactor:` Code restructuring
-  - `test:` Testing related changes
-  - `docs:` Documentation updates
-  - `chore:` Maintenance tasks
+
 - Verify commit with `git log --oneline`
 
 
