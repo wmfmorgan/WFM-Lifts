@@ -21,7 +21,7 @@ The plate calculation algorithm has two major flaws:
 The calculator fetches the user's available plates but does not respect the quantity (`pair_count`). It assumes infinite availability of any plate found in the database.
 - *Impact:* The app might recommend using 3 pairs of 45lb plates when the user only owns 1 pair.
 
-## Improvements / To-Do
+## Improvements / To-Do (oh yeah!)
 
 ### [IMP-001] Prevent Duplicate Logging
 **Severity:** Low
